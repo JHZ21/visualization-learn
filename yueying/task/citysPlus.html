@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas
+      id="canvas"
+      width="1600"
+      height="1600"
+      style="width: 800px; height: 800px;"
+    ></canvas>
+    <script src="https://d3js.org/d3-hierarchy.v1.min.js"></script>
+
+    <script>
+      const dataSource =
+          "https://s5.ssl.qhres.com/static/b0695e2dd30daa64.json",
+        canvas = document.getElementById("canvas"),
+        context = canvas.getContext("2d"),
+        TAU = 2 * Math.PI;
+      let find = false,
+        ball = undefined,
+        oldBall = undefined,
+        oldCanvasData = undefined,
+        inBall = false;
+
+      (async function () {
+        const data = await (await fetch(dataSource)).json();
+
+        const regions = d3
+          .hierarchy(data)
+          .sum((d) => 1)
+          .sort((a, b) => b.value - a.value);
+
+        const pack = d3.pack().size([1600, 1600]).padding(3);
+
+        const root = pack(regions);
+        draw(context, root);
+        oldCanvasData = context.getImageData(0, 0, canvas.width, canvas.height);
+        function equalBall(a, b) {
+          return a.x === b.x && a.y === b.y && a.r === b.r
+        }
+        canvas.onmousemove = function (e) {
+          const ctx = context;
+          let location = windowToCanvas(e);
+          findBall(location, root);
+          if (ball) {
+            inBall = true;
+            find = false;
+            // if(oldBall && equalBall(ball, oldBall)) return
+            oldBall = ball
+            console.log('ball: ', ball);
+            console.log(canvas.width, canvas.height);
+            ctx.save();
+            const { x, y, r } = ball;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, TAU);
+            ctx.fillStyle = "rgba(100,100,0,0.7)";
+            ctx.fill();
+            const name = ball.data.name;
+            ctx.fillStyle = "white";
+            ctx.font = "1.5rem Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(name, x, y);
+            ctx.restore();
+            ball = undefined;
+          } else {
+            if (inBall && oldCanvasData) {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              ctx.putImageData(
+                oldCanvasData,
+                0,
+                0,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+              );
+            }
+            inBall = false;
+          }
+        };
+      })();
+      function windowToCanvas(e) {
+        let x = e.x || e.clientX,
+          y = e.y || e.clientY,
+          bbox = canvas.getBoundingClientRect();
+        return {
+          x: (x - bbox.left) * (canvas.width / bbox.width),
+          y: (y - bbox.top) * (canvas.height / bbox.height),
+        };
+      }
+
+      function findBall(location, node) {
+        if (find) return false;
+        const children = node.children;
+        const { x, y, r } = node;
+        let distance =
+          Math.pow(location.x - x, 2) +
+          Math.pow(location.y - y, 2) -
+          Math.pow(r, 2);
+        if (distance <= 0) {
+          if (children) {
+            for (let i = 0; i < children.length; i++) {
+              findBall(location, children[i]);
+            }
+          } else {
+            find = true;
+            ball = node;
+          }
+        }
+      }
+
+      function draw(
+        ctx,
+        node,
+        { fillStyle = "rgba(0, 0, 0, 0.2)", textColor = "white" } = {}
+      ) {
+        const children = node.children;
+        const { x, y, r } = node;
+        ctx.fillStyle = fillStyle;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, TAU);
+        ctx.fill();
+        if (children) {
+          for (let i = 0; i < children.length; i++) {
+            draw(ctx, children[i]);
+          }
+        } else {
+          const name = node.data.name;
+          ctx.fillStyle = textColor;
+          ctx.font = "1.5rem Arial";
+          ctx.textAlign = "center";
+          ctx.fillText(name, x, y);
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <img src="./imgs/mei.jpg" alt="girl" />
+    <canvas id="tutorial" width="400" height="400">
+    </canvas>
+  </body>
+  <script>
+    function draw() {
+      const canvas = document.getElementById("tutorial");
+      if (!canvas.getContext) return;
+      const ctx = canvas.getContext("2d");
+      const img = document.querySelector('img')
+      ctx.drawImage(img, 0, 0,1000, 1000)
+    }
+    document.querySelector('img').onclick = function() {
+      draw()
+    }
+  </script>
+</html>

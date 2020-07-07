@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="300" height="300"></canvas>
+    <script>
+      const canvas = document.getElementById("canvas"),
+        ctx = canvas.getContext("2d"),
+        canvasWidth = 300,
+        canvasHeight = 300,
+        angleNum = 5;
+      // draw ....s
+      ctx.save();
+      ctx.translate(canvasWidth / 2, canvasHeight / 2);
+      angle = 360 / angleNum;
+      dy = 40;
+      dx = Math.tan((angle * Math.PI) / 360) * dy;
+      for (let rotate = 0; rotate < 360; rotate += angle) {
+        ctx.lineTo(0, -140);
+        ctx.lineTo(dx, -dy);
+        ctx.rotate((angle * Math.PI) / 180);
+      }
+      ctx.closePath()
+      ctx.strokeStyle = "red";
+      ctx.fillStyle = "yellow";
+      ctx.stroke();
+      ctx.fill();
+      ctx.restore();
+    </script>
+  </body>
+</html>

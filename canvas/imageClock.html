@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Clock</title>
+    <style>
+      body {
+        background: #ddd;
+      }
+      #canvas {
+        display: none;
+      }
+      #snapshotImageElement {
+        position: absolute;
+        left: 10px;
+        margin: 20px;
+        border: thin solid #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <img id="snapshotImageElement" />
+    <canvas id="canvas" width="450" height="450">
+      Canvas not supported
+    </canvas>
+    <script src="js/clock.js"></script>
+    <script>
+      const FONT_HEIGHT = 25;
+      function updateClockImage() {
+        snapshotImageElement.src = canvas.toDataURL();
+      }
+      function drawClock() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.save();
+        context.fillStyle = "rgba(255, 255, 255, 0.8)";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        drawCircle();
+        drawCenter();
+        drawHands();
+        context.
+        estore();
+        drawNumerals();
+        updateClockImage();
+      }
+      // Initialization .........................
+      context.font = FONT_HEIGHT + "px Arial";
+      loop = setInterval(drawClock, 1000);
+    </script>
+  </body>
+</html>
